@@ -30,6 +30,12 @@ For now, this projects is tested only on Ubuntu OS.
 USAGE
 ------------
 
+First of all, after you have downloaded the repo, you need to retrieve project libraries. Simply run the following command in your project root folder (ps: you need to have "composer" already installed):
+
+~~~
+composer update
+~~~
+
 To work with all the commands you need to configure an alias to launch the Yii2 application. 
 To do this you have to create a script. Here the instructions:
 
