@@ -2,8 +2,7 @@
 namespace app\commands;
 
 use yii;
-use yii\console\Controller;
-use yii\console\ExitCode;
+use yii\console\{Controller, ExitCode};
 use app\components\behaviors\MessageBehavior;
 use Aws\Sdk;
 
@@ -71,7 +70,7 @@ class AwsController extends Controller
 	 *
 	 * @return array|string[]
 	 */
-	public function options($actionID)
+	public function options($actionID): array
 	{
 		return ['profile', 'endpoint', 'domain', 'start', 'size', 'fq', 'parser', 'sort_field', 'sort_direction'];
 	}
@@ -81,7 +80,7 @@ class AwsController extends Controller
 	 *
 	 * @return array
 	 */
-	public function behaviors()
+	public function behaviors(): array
 	{
 		return [
 			'message' => [
@@ -105,7 +104,7 @@ class AwsController extends Controller
      *
      * @return int
      */
-    public function actionIndex(string $action, string $method, string $key_1 = '', string $key_2 = '')
+    public function actionIndex(string $action, string $method, string $key_1 = '', string $key_2 = ''): int
     {
 	    /**
 	     * @var MessageBehavior $message
@@ -197,7 +196,7 @@ class AwsController extends Controller
 	 *
 	 * @return string
 	 */
-	protected function findEc2Instances(string $key)
+	protected function findEc2Instances(string $key): string
 	{
 		$output = '';
 
@@ -264,7 +263,7 @@ class AwsController extends Controller
 	 *
 	 * @return string
 	 */
-	protected function manageS3Command(string $method, string $key_1, string $key_2)
+	protected function manageS3Command(string $method, string $key_1, string $key_2): string
 	{
 		return shell_exec('aws s3 ' . $method . ' ' . $key_1 . ' ' . $key_2 . ' ' . ((!empty($this->profile)) ? ('--profile ' . $this->profile): ''));
 	}
@@ -276,7 +275,7 @@ class AwsController extends Controller
 	 *
 	 * @return string
 	 */
-	protected function searchCSKeyword(string $key)
+	protected function searchCSKeyword(string $key): string
 	{
 		$output = '';
 
@@ -344,7 +343,7 @@ class AwsController extends Controller
 	 *
 	 * @return string
 	 */
-	protected function checkCSStatus()
+	protected function checkCSStatus(): string
 	{
 		$output = '';
 

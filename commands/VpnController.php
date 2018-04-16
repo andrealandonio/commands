@@ -1,8 +1,7 @@
 <?php
 namespace app\commands;
 
-use yii\console\Controller;
-use yii\console\ExitCode;
+use yii\console\{Controller, ExitCode};
 use app\components\behaviors\MessageBehavior;
 
 /**
@@ -30,7 +29,7 @@ class VpnController extends Controller
 	 *
 	 * @return array|string[]
 	 */
-	public function options($actionID)
+	public function options($actionID): array
 	{
 		return ['config', 'auth'];
 	}
@@ -40,7 +39,7 @@ class VpnController extends Controller
 	 *
 	 * @return array
 	 */
-	public function behaviors()
+	public function behaviors(): array
 	{
 		return [
 			'message' => [
@@ -61,7 +60,7 @@ class VpnController extends Controller
      *
      * @return int
      */
-    public function actionIndex(string $action)
+    public function actionIndex(string $action): int
     {
 	    /**
 	     * @var MessageBehavior $message

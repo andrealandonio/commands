@@ -1,8 +1,7 @@
 <?php
 namespace app\commands;
 
-use yii\console\Controller;
-use yii\console\ExitCode;
+use yii\console\{Controller, ExitCode};
 use app\components\behaviors\MessageBehavior;
 
 /**
@@ -30,7 +29,7 @@ class VideoController extends Controller
 	 *
 	 * @return array|string[]
 	 */
-	public function options($actionID)
+	public function options($actionID): array
 	{
 		return ['fps', 'size'];
 	}
@@ -40,7 +39,7 @@ class VideoController extends Controller
 	 *
 	 * @return array
 	 */
-	public function behaviors()
+	public function behaviors(): array
 	{
 		return [
 			'message' => [
@@ -61,7 +60,7 @@ class VideoController extends Controller
 	 *
 	 * @return int
 	 */
-    public function actionIndex(string $action, string $input = '', string $output = '')
+    public function actionIndex(string $action, string $input = '', string $output = ''): int
     {
 	    /**
 	     * @var MessageBehavior $message
