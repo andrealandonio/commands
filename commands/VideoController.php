@@ -50,6 +50,28 @@ class VideoController extends Controller
 	}
 
 	/**
+	 * Check controller dependencies
+	 *
+	 * @return int
+	 */
+	protected function checkDependencies(): int {
+		/**
+		 * @var MessageBehavior $message
+		 */
+		$message = $this->getBehavior('message');
+
+		// Check if ffmpeg is installed
+		$check_ffmpeg_dependencies = shell_exec('whereis ffmpeg');
+		if (empty($check_ffmpeg_dependencies) || strlen($check_ffmpeg_dependencies) < 9)
+		{
+			$message->error('Missing ffmpeg, please install it!');
+			return ExitCode::SOFTWARE;
+		}
+
+		return ExitCode::OK;
+	}
+
+	/**
 	 * This command perform what you have entered as action.
 	 * Valid actions are:
 	 * - compress
@@ -66,6 +88,9 @@ class VideoController extends Controller
 	     * @var MessageBehavior $message
 	     */
 	    $message = $this->getBehavior('message');
+
+	    // Check if mandatory services/packages are installed
+	    if ($exit_code = $this->checkDependencies() !== ExitCode::OK) return $exit_code;
 
 	    switch ($action) {
 		    case 'compress': {

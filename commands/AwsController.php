@@ -90,7 +90,29 @@ class AwsController extends Controller
 		];
 	}
 
-    /**
+	/**
+	 * Check controller dependencies
+	 *
+	 * @return int
+	 */
+	protected function checkDependencies(): int {
+		/**
+		 * @var MessageBehavior $message
+		 */
+		$message = $this->getBehavior('message');
+
+		// Check if AWS cli is installed
+		$check_aws_cli_dependencies = shell_exec('whereis aws');
+		if (empty($check_aws_cli_dependencies) || strlen($check_aws_cli_dependencies) < 6)
+		{
+			$message->error('Missing AWS cli, please install it!');
+			return ExitCode::SOFTWARE;
+		}
+
+		return ExitCode::OK;
+	}
+
+	/**
      * This command perform what you have entered as action.
      * Valid actions/methods are:
      * - ec2 (find)
@@ -110,6 +132,9 @@ class AwsController extends Controller
 	     * @var MessageBehavior $message
 	     */
 	    $message = $this->getBehavior('message');
+
+	    // Check if mandatory services/packages are installed
+	    if ($exit_code = $this->checkDependencies() !== ExitCode::OK) return $exit_code;
 
 	    switch ($action) {
 		    case 'ec2': {

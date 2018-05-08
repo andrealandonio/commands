@@ -13,6 +13,21 @@ use app\components\behaviors\MessageBehavior;
 class EnvController extends Controller
 {
 	/**
+	 * @var string $service_fpm the php-fpm service name
+	 */
+	private $service_fpm;
+
+	/**
+	 * @var string $service_nginx the nginx service name
+	 */
+	private $service_nginx;
+
+	/**
+	 * @var string $service_varnish the varnish service name
+	 */
+	private $service_varnish;
+
+	/**
 	 * Define controller behaviors.
 	 *
 	 * @return array
@@ -25,6 +40,44 @@ class EnvController extends Controller
 				'controller' => $this
 			]
 		];
+	}
+
+	/**
+	 * Check controller dependencies
+	 *
+	 * @return int
+	 */
+	protected function checkDependencies(): int {
+		/**
+		 * @var MessageBehavior $message
+		 */
+		$message = $this->getBehavior('message');
+
+		// Check if php-fpm service is installed
+		$this->service_fpm = trim(shell_exec('ls /etc/init.d | grep -m 1 fpm'));
+		if (empty($this->service_fpm))
+		{
+			$message->error('Missing php-fpm service, please install it!');
+			return ExitCode::SOFTWARE;
+		}
+
+		// Check if nginx service is installed
+		$this->service_nginx = trim(shell_exec('ls /etc/init.d | grep -m 1 nginx'));
+		if (empty($this->service_nginx))
+		{
+			$message->error('Missing nginx service, please install it!');
+			return ExitCode::SOFTWARE;
+		}
+
+		// Check if varnish service is installed
+		$this->service_varnish = trim(shell_exec('ls /etc/init.d | grep -m 1 varnish'));
+		if (empty($this->service_varnish))
+		{
+			$message->error('Missing varnish service, please install it!');
+			return ExitCode::SOFTWARE;
+		}
+
+		return ExitCode::OK;
 	}
 
     /**
@@ -46,35 +99,38 @@ class EnvController extends Controller
 	     */
 	    $message = $this->getBehavior('message');
 
+	    // Check if mandatory services/packages are installed
+	    if ($exit_code = $this->checkDependencies() !== ExitCode::OK) return $exit_code;
+
 	    switch ($action) {
 		    case 'start': {
 			    $message->info('Starting LNMP stack..');
-			    echo shell_exec('sudo service php7.0-fpm start');
-			    echo shell_exec('sudo service nginx start');
-			    echo shell_exec('sudo service varnish start');
+			    echo shell_exec('sudo service ' . $this->service_fpm . ' start');
+			    echo shell_exec('sudo service ' . $this->service_nginx . ' start');
+			    echo shell_exec('sudo service ' . $this->service_varnish . ' start');
 			    break;
 		    }
 		    case 'stop': {
 			    $message->info('Stopping LNMP stack..');
-			    echo shell_exec('sudo service php7.0-fpm stop');
-			    echo shell_exec('sudo service nginx stop');
-			    echo shell_exec('sudo service varnish stop');
+			    echo shell_exec('sudo service ' . $this->service_fpm . ' stop');
+			    echo shell_exec('sudo service ' . $this->service_nginx . ' stop');
+			    echo shell_exec('sudo service ' . $this->service_varnish . ' stop');
 			    break;
 		    }
 		    case 'restart': {
 			    $message->info('Restarting LNMP stack..');
-			    echo shell_exec('sudo service php7.0-fpm restart');
-			    echo shell_exec('sudo service nginx restart');
-			    echo shell_exec('sudo service varnish restart');
+			    echo shell_exec('sudo service ' . $this->service_fpm . ' restart');
+			    echo shell_exec('sudo service ' . $this->service_nginx . ' restart');
+			    echo shell_exec('sudo service ' . $this->service_varnish . ' restart');
 			    break;
 		    }
 		    case 'status': {
 			    $message->info('Status PHP-FPM:');
-			    echo shell_exec('sudo service php7.0-fpm status | grep Active');
+			    echo shell_exec('sudo service ' . $this->service_fpm . ' status | grep Active');
 			    $message->info('Status NGINX:');
-			    echo shell_exec('sudo service nginx status | grep Active');
+			    echo shell_exec('sudo service ' . $this->service_nginx . ' status | grep Active');
 			    $message->info('Status VARNISH:');
-			    echo shell_exec('sudo service varnish status | grep Active');
+			    echo shell_exec('sudo service ' . $this->service_varnish . ' status | grep Active');
 		    	break;
 		    }
 		    default: {

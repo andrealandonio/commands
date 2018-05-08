@@ -49,6 +49,28 @@ class VpnController extends Controller
 		];
 	}
 
+	/**
+	 * Check controller dependencies
+	 *
+	 * @return int
+	 */
+	protected function checkDependencies(): int {
+		/**
+		 * @var MessageBehavior $message
+		 */
+		$message = $this->getBehavior('message');
+
+		// Check if openvpn is installed
+		$check_openvpn_dependencies = shell_exec('whereis openvpn');
+		if (empty($check_openvpn_dependencies) || strlen($check_openvpn_dependencies) < 10)
+		{
+			$message->error('Missing openvpn, please install it!');
+			return ExitCode::SOFTWARE;
+		}
+
+		return ExitCode::OK;
+	}
+
     /**
      * This command perform what you have entered as action.
      * Valid actions are:
@@ -66,6 +88,9 @@ class VpnController extends Controller
 	     * @var MessageBehavior $message
 	     */
 	    $message = $this->getBehavior('message');
+
+	    // Check if mandatory services/packages are installed
+	    if ($exit_code = $this->checkDependencies() !== ExitCode::OK) return $exit_code;
 
 	    // Get current user
 	    $current_user = trim(shell_exec('whoami'));
