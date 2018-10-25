@@ -78,7 +78,7 @@ class VideoController extends Controller
 	 *
 	 * @param string $action the action to be performed.
 	 * @param string $input the input file to be managed.
-	 * @param string $output the output file to be generated.ss
+	 * @param string $output the output file to be generated.
 	 *
 	 * @return int
 	 */

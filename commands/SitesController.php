@@ -1,6 +1,8 @@
 <?php
 namespace app\commands;
 
+use app\src\entities\SitesUser;
+use app\src\Globals;
 use yii\console\{Controller, ExitCode};
 use app\components\behaviors\MessageBehavior;
 
@@ -13,14 +15,39 @@ use app\components\behaviors\MessageBehavior;
 class SitesController extends Controller
 {
 	/**
-	 * @var int $fps the video frame rate
+	 * @var string $role the user role
 	 */
-	public $fps = 30;
+	public $role = 'author';
 
 	/**
-	 * @var string $size the video frame size
+	 * @var string $username the user login
 	 */
-	public $size = '1600x900';
+	public $username = '';
+
+	/**
+	 * @var string $password the user password
+	 */
+	public $password = '';
+
+	/**
+	 * @var string $mail the user mail
+	 */
+	public $mail = '';
+
+	/**
+	 * @var string $first_name the user first name
+	 */
+	public $first_name = '';
+
+	/**
+	 * @var string $last_name the user last name
+	 */
+	public $last_name = '';
+
+	/**
+	 * @var string $display_name the user display name
+	 */
+	public $display_name = '';
 
 	/**
 	 * Define controller options.
@@ -31,7 +58,7 @@ class SitesController extends Controller
 	 */
 	public function options($actionID): array
 	{
-		return ['fps', 'size'];
+		return ['role', 'username', 'password', 'mail', 'first_name', 'last_name', 'display_name'];
 	}
 
 	/**
@@ -55,21 +82,6 @@ class SitesController extends Controller
 	 * @return int
 	 */
 	protected function checkDependencies(): int {
-		/**
-		 * @var MessageBehavior $message
-		 */
-		$message = $this->getBehavior('message');
-
-		//TODO: load properties file in Yii2
-
-		// Check if config file exists
-		$check_ffmpeg_dependencies = shell_exec('whereis ffmpeg');
-		if (empty($check_ffmpeg_dependencies) || strlen($check_ffmpeg_dependencies) < 9)
-		{
-			$message->error('Missing ffmpeg, please install it!');
-			return ExitCode::SOFTWARE;
-		}
-
 		return ExitCode::OK;
 	}
 
@@ -79,12 +91,11 @@ class SitesController extends Controller
 	 * - add_user
 	 *
 	 * @param string $action the action to be performed.
-	 * @param string $input the input file to be managed.
-	 * @param string $output the output file to be generated.ss
+	 * @param string $site the site to be used.
 	 *
 	 * @return int
 	 */
-    public function actionIndex(string $action, string $input = '', string $output = ''): int
+    public function actionIndex(string $action, string $site = ''): int
     {
 	    /**
 	     * @var MessageBehavior $message
@@ -94,18 +105,23 @@ class SitesController extends Controller
 	    // Check if mandatory services/packages are installed
 	    if ($exit_code = $this->checkDependencies() !== ExitCode::OK) return $exit_code;
 
-	    self::env('DB_USER', 'web');
-
 	    switch ($action) {
 		    case 'add_user': {
 			    // Add user
-			    if (!empty($key_1)) {
+			    if (!empty($site) && in_array($site, Globals::BRANDS) && !empty($this->username) && !empty($this->mail)) {
+
+			    	$sites_user = new SitesUser($site, $this->username, $this->mail);
+			    	$sites_user->setPassword($this->password);
+				    $sites_user->setRole($this->role);
+				    $sites_user->setFirstName($this->first_name);
+				    $sites_user->setLastName($this->last_name);
+				    $sites_user->setDisplayName($this->display_name);
 
 			    	//TODO: check if role is valid
 				    //TODO: check if site is valid
 				    //TODO: check if mail is valid
 
-				    echo $this->addUser($site, $role, $user_login, $user_pass, $user_email, $first_name, $last_name, $display_name);
+				    echo $this->addUser($site, $this->role, $this->username, $this->password, $this->mail, $this->first_name, $this->last_name, $this->display_name);
 
 				    //TODO: come intercettare se la creazione dell'utente non va a buon fine
 			    }
