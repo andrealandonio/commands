@@ -1,8 +1,9 @@
 <?php
 namespace app\commands;
 
-use app\src\entities\SitesUser;
 use app\src\Globals;
+use app\src\entities\SitesUser;
+use app\src\helpers\{Database, Dictionary};
 use yii\console\{Controller, ExitCode};
 use app\components\behaviors\MessageBehavior;
 
@@ -17,7 +18,7 @@ class SitesController extends Controller
 	/**
 	 * @var string $role the user role
 	 */
-	public $role = 'author';
+	public $role = '';
 
 	/**
 	 * @var string $username the user login
@@ -108,22 +109,39 @@ class SitesController extends Controller
 	    switch ($action) {
 		    case 'add_user': {
 			    // Add user
-			    if (!empty($site) && in_array($site, Globals::BRANDS) && !empty($this->username) && !empty($this->mail)) {
+			    if (!empty($site) && !empty($this->username) && !empty($this->mail)) {
+				    // Check if site is valid
+				    if (!in_array($site, Globals::BRANDS)) {
+					    $message->error('Invalid site field');
+					    return ExitCode::USAGE;
+				    }
 
-			    	$sites_user = new SitesUser($site, $this->username, $this->mail);
-			    	$sites_user->setPassword($this->password);
-				    $sites_user->setRole($this->role);
-				    $sites_user->setFirstName($this->first_name);
-				    $sites_user->setLastName($this->last_name);
-				    $sites_user->setDisplayName($this->display_name);
+				    // Check if role is valid
+				    if (!empty($role) && !in_array($role, Globals::ROLES)) {
+					    $message->error('Invalid role field');
+					    return ExitCode::USAGE;
+				    }
 
-			    	//TODO: check if role is valid
-				    //TODO: check if site is valid
-				    //TODO: check if mail is valid
+				    // Check if mail is valid
+				    if (1==0) {
+				    	//TODO: check mail
+					    $message->error('Invalid mail field');
+					    return ExitCode::USAGE;
+				    }
 
-				    echo $this->addUser($site, $this->role, $this->username, $this->password, $this->mail, $this->first_name, $this->last_name, $this->display_name);
+					// Create user object
+			    	$user = new SitesUser($site, $this->username, $this->mail);
+				    $user->setPassword($this->password);
+				    $user->setRole($this->role);
+				    $user->setFirstName($this->first_name);
+				    $user->setLastName($this->last_name);
+				    $user->setDisplayName($this->display_name);
+
+			    	// Add user to database
+				    echo $this->addUser($site, $user);
 
 				    //TODO: come intercettare se la creazione dell'utente non va a buon fine
+				    //TODO: echo recap of inserted data
 			    }
 			    else {
 				    $message->error('Missing fields');
@@ -141,24 +159,53 @@ class SitesController extends Controller
     }
 
 	/**
-	 * Add user command
+	 * Add user
 	 *
-	 * @param string $method the method to be performed.
-	 * @param string $key_1 the first input key.
-	 * @param string $key_2 the second input key.
+	 * @param string $site the site to be used.
+	 * @param SitesUser $user the user to add.
 	 *
 	 * @return string
 	 */
-	protected function addUser(string $method, string $key_1, string $key_2): string
+	protected function addUser(string $site, SitesUser $user): string
 	{
+		try {
+			// Create a database connection
+			$db = Database::getInstance();
+			$db->openConnection($site);
 
-		//TODO: how to contact DB
+			// Get table prefix
+			$table_prefix = env('DB_' . Dictionary::decodeSiteNameByPrefix($site) . '_TABLE_PREFIX');
+
+			// Search if username or email already exists
+			$users = $db->selectAll('SELECT * FROM ' . $table_prefix . 'users WHERE user_login LIKE \'%' . $user->getUsername() . '%\' OR user_email LIKE \'%' . $user->getMail() . '%\'');
+			if (empty($users)) {
+				// User not exists, create it
+				$user_id = $db->insert('INSERT INTO ' . $table_prefix . 'users (user_login, user_pass, user_nicename, user_email, user_registered, user_status, display_name) VALUES (\'' . $user->getUsername() . '\', \'' . $user->getPassword() . '\', \'' . $user->getUsername() . '\', \'' . $user->getMail() . '\', \'' . date("Y-m-d H:i:s") . '\', 0, \'' . $user->getDisplayName() . '\')');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'wp_capabilities\', \'' . ROLE . '\'');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'wp_user_level\', \'' . ROLE . '\'');
+				if (!empty($user->getFirstName())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'first_name\', \'' . $user->getFirstName() . '\'');
+				if (!empty($user->getLastName())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'last_name\', \'' . $user->getLastName() . '\'');
+				if (!empty($user->getDisplayName())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'nickname\', \'' . $user->getDisplayName() . '\'');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'description\', \'' . ROLE . '\'');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_job\', \'' . ROLE . '\'');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_type\', \'' . ROLE . '\'');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_avatar_big\', \'' . ROLE . '\'');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_avatar_small\', \'' . ROLE . '\'');
+			}
+			else {
+				//TODO: display values
+				return 'User already exists';
+			}
+		}
+		catch (\yii\db\Exception $e) {
+			return('Database error: ' . $e->getMessage());
+		}
 
 		/*
-		INSERT INTO `databasename`.`wp_users` (`ID`, `user_login`, `user_pass`, `user_nicename`, `user_email`, `user_url`, `user_registered`, `user_activation_key`, `user_status`, `display_name`) VALUES ('4', 'demo', MD5('demo'), 'Your Name', 'test@yourdomain.com', 'http://www.test.com/', '2011-06-07 00:00:00', '', '0', 'Your Name');
+
 		INSERT INTO `databasename`.`wp_usermeta` (`umeta_id`, `user_id`, `meta_key`, `meta_value`) VALUES (NULL, '4', 'wp_capabilities', 'a:1:{s:13:"administrator";s:1:"1";}');
 		INSERT INTO `databasename`.`wp_usermeta` (`umeta_id`, `user_id`, `meta_key`, `meta_value`) VALUES (NULL, '4', 'wp_user_level', '10');
 */
-		return shell_exec('aws s3 ' . $method . ' ' . $key_1 . ' ' . $key_2 . ' ' . ((!empty($this->profile)) ? ('--profile ' . $this->profile): ''));
+		//return shell_exec('aws s3 ' . $method . ' ' . $key_1 . ' ' . $key_2 . ' ' . ((!empty($this->profile)) ? ('--profile ' . $this->profile): ''));
 	}
 }

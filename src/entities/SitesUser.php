@@ -1,6 +1,9 @@
 <?php
 namespace app\src\entities;
 
+use app\src\Globals;
+use app\src\helpers\Utilities;
+
 class SitesUser {
 
 	/**
@@ -69,9 +72,7 @@ class SitesUser {
 	 */
 	public function __construct3(string $site, string $username, string $mail) {
 		$this->site = $site;
-		$this->role = $role;
 		$this->username = $username;
-		$this->password = $password;
 		$this->mail = $mail;
 		$this->first_name = '';
 		$this->last_name = '';
@@ -205,7 +206,14 @@ class SitesUser {
 	 * @param string $role
 	 */
 	public function setRole($role) {
-		$this->role = $role;
+		if (empty($role)) {
+			// Use default
+			if (empty($this->site)) $this->role = Globals::DEFAULT_GLOBAL_ROLES;
+			else $this->role = Globals::DEFAULT_BRANDS_ROLES[$this->site];
+		}
+		else {
+			$this->role = $role;
+		}
 	}
 
 	/**
@@ -243,7 +251,7 @@ class SitesUser {
 	public function setPassword($password) {
 		if (empty($password)) {
 			// Generate
-			$this->password = 'generate';
+			$this->password = Utilities::randomPassword();
 		}
 		else {
 			$this->password = $password;
@@ -319,6 +327,15 @@ class SitesUser {
 	 * @param string $display_name
 	 */
 	public function setDisplayName($display_name) {
-		$this->display_name = $display_name;
+		if (!empty($display_name)) {
+			// Use provide display name
+			$this->display_name = $display_name;
+		}
+		else {
+			// Use first name, last_name or username
+			if (!empty($this->first_name) && !empty($this->last_name)) $this->display_name = $this->first_name . ' ' . $this->last_name;
+			else if (!empty($this->first_name)) $this->display_name = $this->first_name;
+			else if (!empty($this->username)) $this->display_name = $this->username;
+		}
 	}
 }
