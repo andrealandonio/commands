@@ -42,6 +42,7 @@ class VideoController extends Controller
 	public function behaviors(): array
 	{
 		return [
+			// Add named behavior "message" with configurations
 			'message' => [
 				'class' => MessageBehavior::className(),
 				'controller' => $this
@@ -50,7 +51,7 @@ class VideoController extends Controller
 	}
 
 	/**
-	 * Check controller dependencies
+	 * Check controller dependencies.
 	 *
 	 * @return int
 	 */
@@ -72,11 +73,9 @@ class VideoController extends Controller
 	}
 
 	/**
-	 * This command perform what you have entered as action.
-	 * Valid actions are:
-	 * - compress
+	 * This command perform the index action.
 	 *
-	 * @param string $action the action to be performed.
+	 * @param string $action the action to be performed. (values: compress)
 	 * @param string $input the input file to be managed.
 	 * @param string $output the output file to be generated.
 	 *

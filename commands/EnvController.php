@@ -35,6 +35,7 @@ class EnvController extends Controller
 	public function behaviors(): array
 	{
 		return [
+			// Add named behavior "message" with configurations
 			'message' => [
 				'class' => MessageBehavior::className(),
 				'controller' => $this
@@ -43,7 +44,7 @@ class EnvController extends Controller
 	}
 
 	/**
-	 * Check controller dependencies
+	 * Check controller dependencies.
 	 *
 	 * @return int
 	 */
@@ -81,14 +82,9 @@ class EnvController extends Controller
 	}
 
     /**
-     * This command perform what you have entered as action.
-     * Valid actions are:
-     * - start
-     * - stop
-     * - restart
-     * - status
+     * This command perform the index action.
      *
-     * @param string $action the action to be performed.
+     * @param string $action the action to be performed. (values: start, stop, status, restart)
      *
      * @return int
      */

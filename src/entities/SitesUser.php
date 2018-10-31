@@ -32,19 +32,34 @@ class SitesUser {
 	private $mail = '';
 
 	/**
-	 * @var string $first_name the user first name
+	 * @var string $name the user first name
 	 */
-	private $first_name = '';
+	private $name = '';
 
 	/**
-	 * @var string $last_name the user last name
+	 * @var string $surname the user last name
 	 */
-	private $last_name = '';
+	private $surname = '';
 
 	/**
-	 * @var string $display_name the user display name
+	 * @var string $alias the user display name
 	 */
-	private $display_name = '';
+	private $alias = '';
+
+	/**
+	 * @var string $bio the user bio
+	 */
+	private $bio = '';
+
+	/**
+	 * @var string $job the user job
+	 */
+	private $job = '';
+
+	/**
+	 * @var int $type the user type
+	 */
+	private $type = '';
 
 	/**
 	 * SitesUser generic constructor.
@@ -74,9 +89,7 @@ class SitesUser {
 		$this->site = $site;
 		$this->username = $username;
 		$this->mail = $mail;
-		$this->first_name = '';
-		$this->last_name = '';
-		$this->display_name = $this->username;
+		$this->alias = $this->username;
 	}
 
 	/**
@@ -97,9 +110,7 @@ class SitesUser {
 		$this->username = $username;
 		$this->password = $password;
 		$this->mail = $mail;
-		$this->first_name = '';
-		$this->last_name = '';
-		$this->display_name = $this->username;
+		$this->alias = $this->username;
 	}
 
 	/**
@@ -113,17 +124,16 @@ class SitesUser {
 	 * @param string $username
 	 * @param string $password
 	 * @param string $mail
-	 * @param string $first_name
+	 * @param string $name
 	 */
-	public function __construct6(string $site, string $role, string $username, string $password, string $mail, string $first_name) {
+	public function __construct6(string $site, string $role, string $username, string $password, string $mail, string $name) {
 		$this->site = $site;
 		$this->role = $role;
 		$this->username = $username;
 		$this->password = $password;
 		$this->mail = $mail;
-		$this->first_name = $first_name;
-		$this->last_name = '';
-		$this->display_name = $this->first_name;
+		$this->name = $name;
+		$this->alias = $this->name;
 	}
 
 	/**
@@ -136,18 +146,18 @@ class SitesUser {
 	 * @param string $username
 	 * @param string $password
 	 * @param string $mail
-	 * @param string $first_name
-	 * @param string $last_name
+	 * @param string $name
+	 * @param string $surname
 	 */
-	public function __construct7(string $site, string $role, string $username, string $password, string $mail, string $first_name, string $last_name) {
+	public function __construct7(string $site, string $role, string $username, string $password, string $mail, string $name, string $surname) {
 		$this->site = $site;
 		$this->role = $role;
 		$this->username = $username;
 		$this->password = $password;
 		$this->mail = $mail;
-		$this->first_name = $first_name;
-		$this->last_name = $last_name;
-		$this->display_name = $this->first_name . ' ' . $this->last_name;
+		$this->name = $name;
+		$this->surname = $surname;
+		$this->alias = $this->name . ' ' . $this->surname;
 	}
 
 	/**
@@ -158,19 +168,19 @@ class SitesUser {
 	 * @param string $username
 	 * @param string $password
 	 * @param string $mail
-	 * @param string $first_name
-	 * @param string $last_name
-	 * @param string $display_name
+	 * @param string $name
+	 * @param string $surname
+	 * @param string $alias
 	 */
-	public function __construct8(string $site, string $role, string $username, string $password, string $mail, string $first_name, string $last_name, string $display_name) {
+	public function __construct8(string $site, string $role, string $username, string $password, string $mail, string $name, string $surname, string $alias) {
 		$this->site = $site;
 		$this->role = $role;
 		$this->username = $username;
 		$this->password = $password;
 		$this->mail = $mail;
-		$this->first_name = $first_name;
-		$this->last_name = $last_name;
-		$this->display_name = $display_name;
+		$this->name = $name;
+		$this->surname = $surname;
+		$this->alias = $alias;
 	}
 
 	/**
@@ -178,7 +188,7 @@ class SitesUser {
 	 *
 	 * @return string
 	 */
-	public function getSite() {
+	public function getSite(): string {
 		return $this->site;
 	}
 
@@ -187,7 +197,7 @@ class SitesUser {
 	 *
 	 * @param string $site
 	 */
-	public function setSite($site) {
+	public function setSite(string $site) {
 		$this->site = $site;
 	}
 
@@ -196,7 +206,7 @@ class SitesUser {
 	 *
 	 * @return string
 	 */
-	public function getRole() {
+	public function getRole(): string {
 		return $this->role;
 	}
 
@@ -205,7 +215,7 @@ class SitesUser {
 	 *
 	 * @param string $role
 	 */
-	public function setRole($role) {
+	public function setRole(string $role) {
 		if (empty($role)) {
 			// Use default
 			if (empty($this->site)) $this->role = Globals::DEFAULT_GLOBAL_ROLES;
@@ -221,7 +231,7 @@ class SitesUser {
 	 *
 	 * @return string
 	 */
-	public function getUsername() {
+	public function getUsername(): string {
 		return $this->username;
 	}
 
@@ -230,7 +240,7 @@ class SitesUser {
 	 *
 	 * @param string $username
 	 */
-	public function setUsername($username) {
+	public function setUsername(string $username) {
 		$this->username = $username;
 	}
 
@@ -239,7 +249,7 @@ class SitesUser {
 	 *
 	 * @return string
 	 */
-	public function getPassword() {
+	public function getPassword(): string {
 		return $this->password;
 	}
 
@@ -248,7 +258,7 @@ class SitesUser {
 	 *
 	 * @param string $password
 	 */
-	public function setPassword($password) {
+	public function setPassword(string $password) {
 		if (empty($password)) {
 			// Generate
 			$this->password = Utilities::randomPassword();
@@ -263,7 +273,7 @@ class SitesUser {
 	 *
 	 * @return string
 	 */
-	public function getMail() {
+	public function getMail(): string {
 		return $this->mail;
 	}
 
@@ -272,70 +282,124 @@ class SitesUser {
 	 *
 	 * @param string $mail
 	 */
-	public function setMail($mail) {
+	public function setMail(string $mail) {
 		$this->mail = $mail;
 	}
 
 	/**
-	 * Get first_name
+	 * Get name
 	 *
 	 * @return string
 	 */
-	public function getFirstName() {
-		return $this->first_name;
+	public function getName(): string {
+		return $this->name;
 	}
 
 	/**
-	 * Set first_name
+	 * Set name
 	 *
-	 * @param string $first_name
+	 * @param string $name
 	 */
-	public function setFirstName($first_name) {
-		$this->first_name = $first_name;
+	public function setName(string $name) {
+		$this->name = $name;
 	}
 
 	/**
-	 * Get last_name
-	 *
-	 * @return string
-	 */
-	public function getLastName() {
-		return $this->last_name;
-	}
-
-	/**
-	 * Set last_name
-	 *
-	 * @param string $last_name
-	 */
-	public function setLastName($last_name) {
-		$this->last_name = $last_name;
-	}
-
-	/**
-	 * Get display_name
+	 * Get surname
 	 *
 	 * @return string
 	 */
-	public function getDisplayName() {
-		return $this->display_name;
+	public function getSurname(): string {
+		return $this->surname;
 	}
 
 	/**
-	 * Set display_name
+	 * Set surname
 	 *
-	 * @param string $display_name
+	 * @param string $surname
 	 */
-	public function setDisplayName($display_name) {
-		if (!empty($display_name)) {
+	public function setSurname(string $surname) {
+		$this->surname = $surname;
+	}
+
+	/**
+	 * Get alias
+	 *
+	 * @return string
+	 */
+	public function getAlias(): string {
+		return $this->alias;
+	}
+
+	/**
+	 * Set alias
+	 *
+	 * @param string $alias
+	 */
+	public function setAlias(string $alias) {
+		if (!empty($alias)) {
 			// Use provide display name
-			$this->display_name = $display_name;
+			$this->alias = $alias;
 		}
 		else {
 			// Use first name, last_name or username
-			if (!empty($this->first_name) && !empty($this->last_name)) $this->display_name = $this->first_name . ' ' . $this->last_name;
-			else if (!empty($this->first_name)) $this->display_name = $this->first_name;
-			else if (!empty($this->username)) $this->display_name = $this->username;
+			if (!empty($this->name) && !empty($this->surname)) $this->alias = $this->name . ' ' . $this->surname;
+			else if (!empty($this->name)) $this->alias = $this->name;
+			else if (!empty($this->username)) $this->alias = $this->username;
 		}
+	}
+
+	/**
+	 * Get bio
+	 *
+	 * @return string
+	 */
+	public function getBio(): string {
+		return $this->bio;
+	}
+
+	/**
+	 * Set bio
+	 *
+	 * @param string $bio
+	 */
+	public function setBio(string $bio) {
+		$this->bio = $bio;
+	}
+
+	/**
+	 * Get job
+	 *
+	 * @return string
+	 */
+	public function getJob(): string {
+		return $this->job;
+	}
+
+	/**
+	 * Set job
+	 *
+	 * @param string $job
+	 */
+	public function setJob(string $job) {
+		$this->job = $job;
+	}
+
+	/**
+	 * Get type
+	 *
+	 * @return int
+	 */
+	public function getType(): int {
+		return $this->type;
+	}
+
+	/**
+	 * Set type
+	 *
+	 * @param int $type
+	 */
+	public function setType(int $type) {
+		$this->type = $type;
 	}
 }

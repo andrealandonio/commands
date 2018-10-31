@@ -42,6 +42,7 @@ class VpnController extends Controller
 	public function behaviors(): array
 	{
 		return [
+			// Add named behavior "message" with configurations
 			'message' => [
 				'class' => MessageBehavior::className(),
 				'controller' => $this
@@ -50,7 +51,7 @@ class VpnController extends Controller
 	}
 
 	/**
-	 * Check controller dependencies
+	 * Check controller dependencies.
 	 *
 	 * @return int
 	 */
@@ -72,13 +73,9 @@ class VpnController extends Controller
 	}
 
     /**
-     * This command perform what you have entered as action.
-     * Valid actions are:
-     * - start
-     * - stop
-     * - status
+     * This command perform the index action.
      *
-     * @param string $action the action to be performed.
+     * @param string $action the action to be performed. (values: start, stop, status)
      *
      * @return int
      */

@@ -83,6 +83,7 @@ class AwsController extends Controller
 	public function behaviors(): array
 	{
 		return [
+			// Add named behavior "message" with configurations
 			'message' => [
 				'class' => MessageBehavior::className(),
 				'controller' => $this
@@ -91,7 +92,7 @@ class AwsController extends Controller
 	}
 
 	/**
-	 * Check controller dependencies
+	 * Check controller dependencies.
 	 *
 	 * @return int
 	 */
@@ -113,16 +114,12 @@ class AwsController extends Controller
 	}
 
 	/**
-     * This command perform what you have entered as action.
-     * Valid actions/methods are:
-     * - ec2 (find)
-     * - s3 (cp|ls|mb|mv|presign|rb|rm|sync|website)
-     * - cs (search|status)
-     *
-     * @param string $action the action to be performed.
-     * @param string $method the method to be performed.
-     * @param string $key_1 the first input key.
-     * @param string $key_2 the second input key.
+	 * This command perform the index action.
+	 *
+	 * @param string $action the action to be performed. (values: ec2, s3, cs)
+	 * @param string $method the method to be performed. (values: ec2 (find), s3 (cp|ls|mb|mv|presign|rb|rm|sync|website), cs (search|status))
+	 * @param string $key_1 the first input key.
+	 * @param string $key_2 the second input key.
      *
      * @return int
      */

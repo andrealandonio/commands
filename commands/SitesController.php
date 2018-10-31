@@ -36,19 +36,39 @@ class SitesController extends Controller
 	public $mail = '';
 
 	/**
-	 * @var string $first_name the user first name
+	 * @var string $name the user first name
 	 */
-	public $first_name = '';
+	public $name = '';
 
 	/**
-	 * @var string $last_name the user last name
+	 * @var string $surname the user last name
 	 */
-	public $last_name = '';
+	public $surname = '';
 
 	/**
-	 * @var string $display_name the user display name
+	 * @var string $alias the user display name
 	 */
-	public $display_name = '';
+	public $alias = '';
+
+	/**
+	 * @var string $bio the user bio
+	 */
+	public $bio = '';
+
+	/**
+	 * @var string $job the user job
+	 */
+	public $job = '';
+
+	/**
+	 * @var int $type the user type
+	 */
+	public $type = '';
+
+	/**
+	 * @var int $images the user profile images count
+	 */
+	public $images = 1;
 
 	/**
 	 * Define controller options.
@@ -59,7 +79,7 @@ class SitesController extends Controller
 	 */
 	public function options($actionID): array
 	{
-		return ['role', 'username', 'password', 'mail', 'first_name', 'last_name', 'display_name'];
+		return ['role', 'username', 'password', 'mail', 'name', 'surname', 'alias', 'bio', 'job', 'type', 'images'];
 	}
 
 	/**
@@ -70,6 +90,7 @@ class SitesController extends Controller
 	public function behaviors(): array
 	{
 		return [
+			// Add named behavior "message" with configurations
 			'message' => [
 				'class' => MessageBehavior::className(),
 				'controller' => $this
@@ -78,7 +99,7 @@ class SitesController extends Controller
 	}
 
 	/**
-	 * Check controller dependencies
+	 * Check controller dependencies.
 	 *
 	 * @return int
 	 */
@@ -87,12 +108,10 @@ class SitesController extends Controller
 	}
 
 	/**
-	 * This command perform what you have entered as action.
-	 * Valid actions are:
-	 * - add_user
+	 * This command perform the index action.
 	 *
-	 * @param string $action the action to be performed.
-	 * @param string $site the site to be used.
+	 * @param string $action the action to be performed. (values: add_user, show_user_profile_types, show_user_profile_images)
+	 * @param string $site the site to be used. (values: gq, glamour, lci, vf, vogue, wired)
 	 *
 	 * @return int
 	 */
@@ -133,12 +152,15 @@ class SitesController extends Controller
 			    	$user = new SitesUser($site, $this->username, $this->mail);
 				    $user->setPassword($this->password);
 				    $user->setRole($this->role);
-				    $user->setFirstName($this->first_name);
-				    $user->setLastName($this->last_name);
-				    $user->setDisplayName($this->display_name);
+				    $user->setName($this->name);
+				    $user->setSurname($this->surname);
+				    $user->setAlias($this->alias);
+				    $user->setBio($this->bio);
+				    $user->setJob($this->job);
+				    $user->setType($this->type);
 
 			    	// Add user to database
-				    echo $this->addUser($site, $user);
+				    $this->addUser($site, $user);
 
 				    //TODO: come intercettare se la creazione dell'utente non va a buon fine
 				    //TODO: echo recap of inserted data
@@ -148,6 +170,20 @@ class SitesController extends Controller
 				    return ExitCode::USAGE;
 			    }
 			    break;
+		    }
+		    case 'show_user_profile_types': {
+		    	// Show user profile types
+			    $message->info('List of user profile types:');
+			    $message->notice(print_r(Globals::USER_PROFILE_TYPES, true));
+
+			    return ExitCode::OK;
+		    }
+		    case 'show_user_profile_images': {
+			    // Show user profile images
+			    $message->info('List of user profile images:');
+			    $message->notice(print_r(Globals::USER_PROFILE_IMAGES, true));
+
+			    return ExitCode::OK;
 		    }
 		    default: {
 			    $message->error('Invalid action');
@@ -164,10 +200,15 @@ class SitesController extends Controller
 	 * @param string $site the site to be used.
 	 * @param SitesUser $user the user to add.
 	 *
-	 * @return string
+	 * @return void
 	 */
-	protected function addUser(string $site, SitesUser $user): string
+	protected function addUser(string $site, SitesUser $user)
 	{
+		/**
+		 * @var MessageBehavior $message
+		 */
+		$message = $this->getBehavior('message');
+
 		try {
 			// Create a database connection
 			$db = Database::getInstance();
@@ -177,35 +218,49 @@ class SitesController extends Controller
 			$table_prefix = env('DB_' . Dictionary::decodeSiteNameByPrefix($site) . '_TABLE_PREFIX');
 
 			// Search if username or email already exists
-			$users = $db->selectAll('SELECT * FROM ' . $table_prefix . 'users WHERE user_login LIKE \'%' . $user->getUsername() . '%\' OR user_email LIKE \'%' . $user->getMail() . '%\'');
+			$users = $db->selectAll('SELECT ID, user_login, user_email, user_registered, display_name FROM ' . $table_prefix . 'users WHERE user_login LIKE \'%' . $user->getUsername() . '%\' OR user_email LIKE \'%' . $user->getMail() . '%\'');
 			if (empty($users)) {
 				// User not exists, create it
 				$user_id = $db->insert('INSERT INTO ' . $table_prefix . 'users (user_login, user_pass, user_nicename, user_email, user_registered, user_status, display_name) VALUES (\'' . $user->getUsername() . '\', \'' . $user->getPassword() . '\', \'' . $user->getUsername() . '\', \'' . $user->getMail() . '\', \'' . date("Y-m-d H:i:s") . '\', 0, \'' . $user->getDisplayName() . '\')');
-				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'wp_capabilities\', \'' . ROLE . '\'');
-				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'wp_user_level\', \'' . ROLE . '\'');
-				if (!empty($user->getFirstName())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'first_name\', \'' . $user->getFirstName() . '\'');
-				if (!empty($user->getLastName())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'last_name\', \'' . $user->getLastName() . '\'');
-				if (!empty($user->getDisplayName())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'nickname\', \'' . $user->getDisplayName() . '\'');
-				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'description\', \'' . ROLE . '\'');
-				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_job\', \'' . ROLE . '\'');
-				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_type\', \'' . ROLE . '\'');
-				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_avatar_big\', \'' . ROLE . '\'');
-				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_avatar_small\', \'' . ROLE . '\'');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'wp_capabilities\', \'' . Dictionary::decodeSiteCapabilitiesByRole($user->getRole()) . '\'');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'wp_user_level\', \'' . Dictionary::decodeSiteUserLevelByRole($user->getRole()) . '\'');
+				if (!empty($user->getName())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'first_name\', \'' . $user->getName() . '\'');
+				if (!empty($user->getSurname())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'last_name\', \'' . $user->getSurname() . '\'');
+				if (!empty($user->getAlias())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'nickname\', \'' . $user->getAlias() . '\'');
+				if (!empty($user->getBio())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'description\', \'' . $user->getBio() . '\'');
+				if (!empty($user->getJob())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_job\', \'' . $user->getJob() . '\'');
+				if (!empty($user->getType())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_type\', \'' . $user->getType() . '\'');
+
+				// Retrieve user profile images paths
+				$profile_images_paths = Globals::USER_PROFILE_IMAGES[$site];
+
+				// Loop over user profile images paths
+				foreach ($profile_images_paths as $profile_images_path_key => $profile_images_path_value) {
+					$value = str_replace('#USERNAME', $user->getUsername(), $profile_images_path_value);
+
+					if ($site === 'glamour' && $user->getType() === 7) {
+						// Force brandmag image
+						$value = str_replace('avatar', 'brandmag', $value);
+					}
+
+					// Loop over user profile images count
+					for ($i = 1; $i <= $this->images; $i++) {
+						$key = str_replace('#COUNT', $i, $profile_images_path_key);
+						$value = str_replace('#COUNT', $i, $value);
+
+						// Insert user profile image meta
+						$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'' . $key . '\', \'' . $value . '\'');
+					}
+				}
 			}
 			else {
-				//TODO: display values
-				return 'User already exists';
+				// User already exists
+				$message->error('User already exists');
+				$message->row($users);
 			}
 		}
 		catch (\yii\db\Exception $e) {
-			return('Database error: ' . $e->getMessage());
+			$message->error('Database error: ' . $e->getMessage());
 		}
-
-		/*
-
-		INSERT INTO `databasename`.`wp_usermeta` (`umeta_id`, `user_id`, `meta_key`, `meta_value`) VALUES (NULL, '4', 'wp_capabilities', 'a:1:{s:13:"administrator";s:1:"1";}');
-		INSERT INTO `databasename`.`wp_usermeta` (`umeta_id`, `user_id`, `meta_key`, `meta_value`) VALUES (NULL, '4', 'wp_user_level', '10');
-*/
-		//return shell_exec('aws s3 ' . $method . ' ' . $key_1 . ' ' . $key_2 . ' ' . ((!empty($this->profile)) ? ('--profile ' . $this->profile): ''));
 	}
 }

@@ -19,6 +19,16 @@ class MessageBehavior extends Behavior
 	public $controller;
 
 	/**
+	 * Show an notice message
+	 *
+	 * @param string $message
+	 */
+	public function notice(string $message)
+	{
+		echo $this->controller->ansiFormat($message, Console::FG_GREY) . "\n";
+	}
+
+	/**
 	 * Show an info message
 	 *
 	 * @param string $message
