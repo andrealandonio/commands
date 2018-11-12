@@ -5,10 +5,16 @@ use app\src\Globals;
 use app\src\entities\SitesUser;
 use app\src\helpers\{Database, Dictionary};
 use yii\console\{Controller, ExitCode};
+use yii\validators\EmailValidator;
 use app\components\behaviors\MessageBehavior;
 
 /**
  * Manages sites utilities.
+ *
+ * Sample calls:
+ * - cmd sites show_user_profile_images
+ * - cmd sites search_user vf --key=test
+ * - cmd sites add_user vf --username=test --mail=test@mail.it --password=SECRET --name=Name --surname=Surname --alias="Name Surname" --bio="User bio" --job="Chief of chiefs" --images=1 --type=1
  *
  * @author Andrea Landonio <landonio.andrea@gmail.com>
  * @since 1.0
@@ -63,7 +69,7 @@ class SitesController extends Controller
 	/**
 	 * @var int $type the user type
 	 */
-	public $type = '';
+	public $type;
 
 	/**
 	 * @var int $images the user profile images count
@@ -142,9 +148,9 @@ class SitesController extends Controller
 				    }
 
 				    // Check if mail is valid
-				    if (1==0) {
-				    	//TODO: check mail
-					    $message->error('Invalid mail field');
+				    $emailValidator = new EmailValidator();
+				    if (!empty($this->mail) && !$emailValidator->validate($this->mail, $error)) {
+				    	$message->error('Invalid mail field');
 					    return ExitCode::USAGE;
 				    }
 
@@ -164,6 +170,7 @@ class SitesController extends Controller
 
 				    //TODO: come intercettare se la creazione dell'utente non va a buon fine
 				    //TODO: echo recap of inserted data
+				    //TODO: mettere esempio chiamata in how-to
 			    }
 			    else {
 				    $message->error('Missing fields');
