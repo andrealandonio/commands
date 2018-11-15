@@ -12,6 +12,7 @@ use app\components\behaviors\MessageBehavior;
  * Manages sites utilities.
  *
  * Sample calls:
+ * - cmd sites show_user_profile_types
  * - cmd sites show_user_profile_images
  * - cmd sites search_user vf --key=test
  * - cmd sites add_user vf --username=test --mail=test@mail.it --password=SECRET --name=Name --surname=Surname --alias="Name Surname" --bio="User bio" --job="Chief of chiefs" --images=1 --type=1
@@ -117,11 +118,11 @@ class SitesController extends Controller
 	 * This command perform the index action.
 	 *
 	 * @param string $action the action to be performed. (values: add_user, show_user_profile_types, show_user_profile_images)
-	 * @param string $site the site to be used. (values: gq, glamour, lci, vf, vogue, wired)
+	 * @param string $key the site to be used (values: gq, glamour, lci, vf, vogue, wired) or the key to be searched.
 	 *
 	 * @return int
 	 */
-    public function actionIndex(string $action, string $site = ''): int
+    public function actionIndex(string $action, string $key = ''): int
     {
 	    /**
 	     * @var MessageBehavior $message
@@ -132,11 +133,27 @@ class SitesController extends Controller
 	    if ($exit_code = $this->checkDependencies() !== ExitCode::OK) return $exit_code;
 
 	    switch ($action) {
+		    case 'search_user': {
+			    // Search user
+			    if (!empty($key)) {
+				    // Search user into database
+				    $this->searchUser($key);
+
+				    //TODO: come intercettare se la creazione dell'utente non va a buon fine
+				    //TODO: echo recap of inserted data
+				    //TODO: mettere esempio chiamata in how-to
+			    }
+			    else {
+				    $message->error('Invalid key field');
+				    return ExitCode::USAGE;
+			    }
+			    break;
+		    }
 		    case 'add_user': {
 			    // Add user
-			    if (!empty($site) && !empty($this->username) && !empty($this->mail)) {
+			    if (!empty($key) && !empty($this->username) && !empty($this->mail)) {
 				    // Check if site is valid
-				    if (!in_array($site, Globals::BRANDS)) {
+				    if (!in_array($key, Globals::BRANDS)) {
 					    $message->error('Invalid site field');
 					    return ExitCode::USAGE;
 				    }
@@ -155,7 +172,7 @@ class SitesController extends Controller
 				    }
 
 					// Create user object
-			    	$user = new SitesUser($site, $this->username, $this->mail);
+			    	$user = new SitesUser($key, $this->username, $this->mail);
 				    $user->setPassword($this->password);
 				    $user->setRole($this->role);
 				    $user->setName($this->name);
@@ -166,7 +183,7 @@ class SitesController extends Controller
 				    $user->setType($this->type);
 
 			    	// Add user to database
-				    $this->addUser($site, $user);
+				    $this->addUser($key, $user);
 
 				    //TODO: come intercettare se la creazione dell'utente non va a buon fine
 				    //TODO: echo recap of inserted data
@@ -202,14 +219,13 @@ class SitesController extends Controller
     }
 
 	/**
-	 * Add user
+	 * Search user
 	 *
-	 * @param string $site the site to be used.
-	 * @param SitesUser $user the user to add.
+	 * @param string $key the key to be searched.
 	 *
 	 * @return void
 	 */
-	protected function addUser(string $site, SitesUser $user)
+	protected function searchUser(string $key)
 	{
 		/**
 		 * @var MessageBehavior $message
@@ -219,33 +235,72 @@ class SitesController extends Controller
 		try {
 			// Create a database connection
 			$db = Database::getInstance();
-			$db->openConnection($site);
+			$db->openConnection($key);
 
 			// Get table prefix
-			$table_prefix = env('DB_' . Dictionary::decodeSiteNameByPrefix($site) . '_TABLE_PREFIX');
+			$table_prefix = env('DB_' . Dictionary::decodeSiteNameByPrefix($key) . '_TABLE_PREFIX');
+
+			// Search if username or email already exists
+			$users = $db->selectAll('SELECT ID, user_login, user_email, display_name FROM ' . $table_prefix . 'users WHERE user_login LIKE \'%' . addslashes($key) . '%\' OR user_email LIKE \'%' . $key . '%\'');
+			if (empty($users)) {
+				// User founded
+				$message->info('Users founded');
+				$message->row($users);
+			}
+			else {
+				$message->info('No users founded');
+			}
+		}
+		catch (\yii\db\Exception $e) {
+			$message->error('Database error: ' . $e->getMessage());
+		}
+	}
+
+	/**
+	 * Add user
+	 *
+	 * @param string $key the site to be used.
+	 * @param SitesUser $user the user to add.
+	 *
+	 * @return void
+	 */
+	protected function addUser(string $key, SitesUser $user)
+	{
+		/**
+		 * @var MessageBehavior $message
+		 */
+		$message = $this->getBehavior('message');
+
+		try {
+			// Create a database connection
+			$db = Database::getInstance();
+			$db->openConnection($key);
+
+			// Get table prefix
+			$table_prefix = env('DB_' . Dictionary::decodeSiteNameByPrefix($key) . '_TABLE_PREFIX');
 
 			// Search if username or email already exists
 			$users = $db->selectAll('SELECT ID, user_login, user_email, user_registered, display_name FROM ' . $table_prefix . 'users WHERE user_login LIKE \'%' . $user->getUsername() . '%\' OR user_email LIKE \'%' . $user->getMail() . '%\'');
 			if (empty($users)) {
 				// User not exists, create it
-				$user_id = $db->insert('INSERT INTO ' . $table_prefix . 'users (user_login, user_pass, user_nicename, user_email, user_registered, user_status, display_name) VALUES (\'' . $user->getUsername() . '\', \'' . $user->getPassword() . '\', \'' . $user->getUsername() . '\', \'' . $user->getMail() . '\', \'' . date("Y-m-d H:i:s") . '\', 0, \'' . $user->getDisplayName() . '\')');
-				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'wp_capabilities\', \'' . Dictionary::decodeSiteCapabilitiesByRole($user->getRole()) . '\'');
-				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'wp_user_level\', \'' . Dictionary::decodeSiteUserLevelByRole($user->getRole()) . '\'');
-				if (!empty($user->getName())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'first_name\', \'' . $user->getName() . '\'');
-				if (!empty($user->getSurname())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'last_name\', \'' . $user->getSurname() . '\'');
-				if (!empty($user->getAlias())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'nickname\', \'' . $user->getAlias() . '\'');
-				if (!empty($user->getBio())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'description\', \'' . $user->getBio() . '\'');
-				if (!empty($user->getJob())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_job\', \'' . $user->getJob() . '\'');
-				if (!empty($user->getType())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_type\', \'' . $user->getType() . '\'');
+				$user_id = $db->insert('INSERT INTO ' . $table_prefix . 'users (user_login, user_pass, user_nicename, user_email, user_registered, user_status, display_name) VALUES (\'' . $user->getUsername() . '\', \'' . $user->getPassword() . '\', \'' . $user->getUsername() . '\', \'' . $user->getMail() . '\', \'' . date("Y-m-d H:i:s") . '\', 0, \'' . addslashes($user->getAlias()) . '\')');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'wp_capabilities\', \'' . Dictionary::decodeSiteCapabilitiesByRole($user->getRole()) . '\')');
+				$db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'wp_user_level\', \'' . Dictionary::decodeSiteUserLevelByRole($user->getRole()) . '\')');
+				if (!empty($user->getName())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'first_name\', \'' . addslashes($user->getName()) . '\')');
+				if (!empty($user->getSurname())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'last_name\', \'' . addslashes($user->getSurname()) . '\')');
+				if (!empty($user->getAlias())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'nickname\', \'' . addslashes($user->getAlias()) . '\')');
+				if (!empty($user->getBio())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'description\', \'' . addslashes($user->getBio()) . '\')');
+				if (!empty($user->getJob())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_job\', \'' . addslashes($user->getJob()) . '\')');
+				if (!empty($user->getType())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_type\', \'' . $user->getType() . '\')');
 
 				// Retrieve user profile images paths
-				$profile_images_paths = Globals::USER_PROFILE_IMAGES[$site];
+				$profile_images_paths = Globals::USER_PROFILE_IMAGES[$key];
 
 				// Loop over user profile images paths
 				foreach ($profile_images_paths as $profile_images_path_key => $profile_images_path_value) {
 					$value = str_replace('#USERNAME', $user->getUsername(), $profile_images_path_value);
 
-					if ($site === 'glamour' && $user->getType() === 7) {
+					if ($key === 'glamour' && $user->getType() === 7) {
 						// Force brandmag image
 						$value = str_replace('avatar', 'brandmag', $value);
 					}
