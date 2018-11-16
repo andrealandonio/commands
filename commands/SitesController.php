@@ -13,7 +13,7 @@ use app\components\behaviors\MessageBehavior;
  *
  * Sample calls:
  * - cmd sites show_user_profile_types
- * - cmd sites show_user_profile_images
+ * - cmd sites show_user_profile_images (ADD TAGLI LISTA)
  * - cmd sites search_user vf --key=test
  * - cmd sites add_user vf --username=test --mail=test@mail.it --password=SECRET --name=Name --surname=Surname --alias="Name Surname" --bio="User bio" --job="Chief of chiefs" --images=1 --type=1
  *
@@ -22,6 +22,11 @@ use app\components\behaviors\MessageBehavior;
  */
 class SitesController extends Controller
 {
+	/**
+	 * @var string $key the search keyword
+	 */
+	public $key = '';
+
 	/**
 	 * @var string $role the user role
 	 */
@@ -86,7 +91,7 @@ class SitesController extends Controller
 	 */
 	public function options($actionID): array
 	{
-		return ['role', 'username', 'password', 'mail', 'name', 'surname', 'alias', 'bio', 'job', 'type', 'images'];
+		return ['key', 'role', 'username', 'password', 'mail', 'name', 'surname', 'alias', 'bio', 'job', 'type', 'images'];
 	}
 
 	/**
@@ -118,11 +123,11 @@ class SitesController extends Controller
 	 * This command perform the index action.
 	 *
 	 * @param string $action the action to be performed. (values: add_user, show_user_profile_types, show_user_profile_images)
-	 * @param string $key the site to be used (values: gq, glamour, lci, vf, vogue, wired) or the key to be searched.
+	 * @param string $site the site to be used (values: gq, glamour, lci, vf, vogue, wired)
 	 *
 	 * @return int
 	 */
-    public function actionIndex(string $action, string $key = ''): int
+    public function actionIndex(string $action, string $site = ''): int
     {
 	    /**
 	     * @var MessageBehavior $message
@@ -135,25 +140,21 @@ class SitesController extends Controller
 	    switch ($action) {
 		    case 'search_user': {
 			    // Search user
-			    if (!empty($key)) {
+			    if (!empty($site) && !empty($this->key)) {
 				    // Search user into database
-				    $this->searchUser($key);
-
-				    //TODO: come intercettare se la creazione dell'utente non va a buon fine
-				    //TODO: echo recap of inserted data
-				    //TODO: mettere esempio chiamata in how-to
+				    $this->searchUser($site, $this->key);
 			    }
 			    else {
-				    $message->error('Invalid key field');
+				    $message->error('Missing fields');
 				    return ExitCode::USAGE;
 			    }
 			    break;
 		    }
 		    case 'add_user': {
 			    // Add user
-			    if (!empty($key) && !empty($this->username) && !empty($this->mail)) {
+			    if (!empty($site) && !empty($this->username) && !empty($this->mail)) {
 				    // Check if site is valid
-				    if (!in_array($key, Globals::BRANDS)) {
+				    if (!in_array($site, Globals::BRANDS)) {
 					    $message->error('Invalid site field');
 					    return ExitCode::USAGE;
 				    }
@@ -172,7 +173,7 @@ class SitesController extends Controller
 				    }
 
 					// Create user object
-			    	$user = new SitesUser($key, $this->username, $this->mail);
+			    	$user = new SitesUser($site, $this->username, $this->mail);
 				    $user->setPassword($this->password);
 				    $user->setRole($this->role);
 				    $user->setName($this->name);
@@ -183,7 +184,7 @@ class SitesController extends Controller
 				    $user->setType($this->type);
 
 			    	// Add user to database
-				    $this->addUser($key, $user);
+				    $this->addUser($site, $user);
 
 				    //TODO: come intercettare se la creazione dell'utente non va a buon fine
 				    //TODO: echo recap of inserted data
@@ -221,11 +222,12 @@ class SitesController extends Controller
 	/**
 	 * Search user
 	 *
+	 * @param string $site the site to be used.
 	 * @param string $key the key to be searched.
 	 *
 	 * @return void
 	 */
-	protected function searchUser(string $key)
+	protected function searchUser(string $site, string $key)
 	{
 		/**
 		 * @var MessageBehavior $message
@@ -235,17 +237,17 @@ class SitesController extends Controller
 		try {
 			// Create a database connection
 			$db = Database::getInstance();
-			$db->openConnection($key);
+			$db->openConnection($site);
 
 			// Get table prefix
-			$table_prefix = env('DB_' . Dictionary::decodeSiteNameByPrefix($key) . '_TABLE_PREFIX');
+			$table_prefix = env('DB_' . Dictionary::decodeSiteNameByPrefix($site) . '_TABLE_PREFIX');
 
 			// Search if username or email already exists
 			$users = $db->selectAll('SELECT ID, user_login, user_email, display_name FROM ' . $table_prefix . 'users WHERE user_login LIKE \'%' . addslashes($key) . '%\' OR user_email LIKE \'%' . $key . '%\'');
-			if (empty($users)) {
+			if (!empty($users)) {
 				// User founded
 				$message->info('Users founded');
-				$message->row($users);
+				foreach ($users as $user) $message->row($user);
 			}
 			else {
 				$message->info('No users founded');
@@ -259,12 +261,12 @@ class SitesController extends Controller
 	/**
 	 * Add user
 	 *
-	 * @param string $key the site to be used.
+	 * @param string $site the site to be used.
 	 * @param SitesUser $user the user to add.
 	 *
 	 * @return void
 	 */
-	protected function addUser(string $key, SitesUser $user)
+	protected function addUser(string $site, SitesUser $user)
 	{
 		/**
 		 * @var MessageBehavior $message
@@ -274,7 +276,7 @@ class SitesController extends Controller
 		try {
 			// Create a database connection
 			$db = Database::getInstance();
-			$db->openConnection($key);
+			$db->openConnection($site);
 
 			// Get table prefix
 			$table_prefix = env('DB_' . Dictionary::decodeSiteNameByPrefix($key) . '_TABLE_PREFIX');

@@ -1,0 +1,41 @@
+# Gq
+DB_GQ_DSN = 'mysql:host=localhost;dbname=gq'
+DB_GQ_USERNAME = 'condenast'
+DB_GQ_PASSWORD = 'condenast'
+DB_GQ_CHARSET = 'utf8'
+DB_GQ_TABLE_PREFIX = 'wp_'
+
+# Glamour
+DB_GLAMOUR_DSN = 'mysql:host=localhost;dbname=glamour'
+DB_GLAMOUR_USERNAME = 'condenast'
+DB_GLAMOUR_PASSWORD = 'condenast'
+DB_GLAMOUR_CHARSET = 'utf8'
+DB_GLAMOUR_TABLE_PREFIX = 'wp_'
+
+# Lci
+DB_LCI_DSN = 'mysql:host=localhost;dbname=lci2'
+DB_LCI_USERNAME = 'condenast'
+DB_LCI_PASSWORD = 'condenast'
+DB_LCI_CHARSET = 'utf8'
+DB_LCI_TABLE_PREFIX = 'wp_'
+
+# Vf
+DB_VF_DSN = 'mysql:host=localhost;dbname=vanityfair'
+DB_VF_USERNAME = 'condenast'
+DB_VF_PASSWORD = 'condenast'
+DB_VF_CHARSET = 'utf8'
+DB_VF_TABLE_PREFIX = 'wp_'
+
+# Vogue
+DB_VOGUE_DSN = 'mysql:host=localhost;dbname=vogue'
+DB_VOGUE_USERNAME = 'condenast'
+DB_VOGUE_PASSWORD = 'condenast'
+DB_VOGUE_CHARSET = 'utf8'
+DB_VOGUE_TABLE_PREFIX = 'wp_'
+
+# Wired
+DB_WIRED_DSN = 'mysql:host=localhost;dbname=wired'
+DB_WIRED_USERNAME = 'condenast'
+DB_WIRED_PASSWORD = 'condenast'
+DB_WIRED_CHARSET = 'utf8'
+DB_WIRED_TABLE_PREFIX = 'wp_'
