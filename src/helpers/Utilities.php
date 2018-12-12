@@ -30,4 +30,15 @@ class Utilities {
 		// Return the password array as string
 		return implode($password);
 	}
+
+	/**
+	 * Remove temporary spacer from texts
+	 *
+	 * @param string $text
+	 *
+	 * @return mixed
+	 */
+	public static function cleanTexts(string $text) {
+		return str_replace('+', ' ', $text);
+	}
 }

@@ -59,8 +59,8 @@ class Globals {
 		)
 	);
 
-	// User profile images
-	const USER_PROFILE_IMAGES = array(
+	// User profile images path
+	const USER_PROFILE_IMAGES_PATH = array(
 		'gq' => array(
 			'profile_image' => 'https://img.gqitalia.it/avatar/big/#USERNAME#.jpg',
 			'profile_avatar' => 'https://img.gqitalia.it/avatar/small/#USERNAME#.jpg',
@@ -73,7 +73,7 @@ class Globals {
 			'profile_image' => 'https://images.lacucinaitaliana.it/users/profile/#USERNAME#.jpg',
 		),
 		'vf' => array(
-			'profile_image' => 'http://images.vanityfair.it/users/profile/#USERNAME#.jpg',
+			'profile_image' => 'https://images.vanityfair.it/users/profile/#USERNAME#.jpg',
 		),
 		'vogue' => array(
 			'profile_image' => 'https://images.vogue.it/users/profile/#USERNAME#.jpg',
@@ -84,6 +84,33 @@ class Globals {
 			'profile_avatar' => 'https://images.wired.it/avatar/small/#USERNAME#.jpg',
 		)
 	);
+
+	// User profile images size
+	const USER_PROFILE_IMAGES_SIZE = array(
+		'gq' => array(
+			'profile_image' => '200x200',
+			'profile_avatar' => '44x44',
+		),
+		'glamour' => array(
+			'profile_image_#COUNT#' => '430x430',
+			'profile_avatar' => '60x60',
+		),
+		'lci' => array(
+			'profile_image' => '300x300',
+		),
+		'vf' => array(
+			'profile_image' => '280x280',
+		),
+		'vogue' => array(
+			'profile_image' => '300x450',
+			'profile_avatar' => '100x100',
+		),
+		'wired' => array(
+			'profile_image' => '139x139',
+			'profile_avatar' => '56x56',
+		)
+	);
+
 
 	// Default global and brands roles
 	const DEFAULT_GLOBAL_ROLES = 'author';
