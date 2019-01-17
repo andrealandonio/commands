@@ -67,4 +67,38 @@ class Dictionary {
 			}
 		}
 	}
+
+	/**
+	 * Compose mail by site
+	 *
+	 * @param string $site
+	 * @param string $username
+	 *
+	 * @return string
+	 */
+	public static function composeMailBySite(string $site, string $username): string {
+		switch ($site) {
+			case 'gq': {
+				return $username . '@authors.gqitalia.it';
+			}
+			case 'glamour': {
+				return $username . '@glamour.it';
+			}
+			case 'lci': {
+				return $username . '@lacucinaitaliana.it';
+			}
+			case 'vf': {
+				return $username . '@vanityfair.it';
+			}
+			case 'vogue': {
+				return $username . '@vogue.it';
+			}
+			case 'wired': {
+				return $username . '@authors.wired.it';
+			}
+			default: {
+				return $username . '@mail.it';
+			}
+		}
+	}
 }
