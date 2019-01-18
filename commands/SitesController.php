@@ -168,7 +168,7 @@ class SitesController extends Controller
 		    }
 		    case 'add_user': {
 			    // Add user
-			    if (!empty($site) && !empty($this->username) && !empty($this->mail)) {
+			    if (!empty($site) && !empty($this->username)) {
 				    // Check if site is valid
 				    if (!in_array($site, Globals::BRANDS)) {
 					    $message->error('Invalid site field');
