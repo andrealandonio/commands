@@ -10,7 +10,8 @@ class Globals {
 		'lci',
 		'vf',
 		'vogue',
-		'wired'
+		'wired',
+		'wired2'
 	);
 
 	// User roles
@@ -56,6 +57,11 @@ class Globals {
 			1 => 'subscriber',
 			2 => 'contributor',
 			9 => 'redazione',
+		),
+		'wired2' => array(
+			1 => 'subscriber',
+			2 => 'contributor',
+			9 => 'redazione',
 		)
 	);
 
@@ -82,6 +88,9 @@ class Globals {
 		'wired' => array(
 			'profile_image' => 'https://images.wired.it/avatar/big/#USERNAME#.jpg',
 			'profile_avatar' => 'https://images.wired.it/avatar/small/#USERNAME#.jpg',
+		),
+		'wired2' => array(
+			'profile_image' => 'https://images.wired.it/avatar/big/#USERNAME#.jpg',
 		)
 	);
 
@@ -108,6 +117,9 @@ class Globals {
 		'wired' => array(
 			'profile_image' => '139x139',
 			'profile_avatar' => '56x56',
+		),
+		'wired2' => array(
+			'profile_image' => '300x300',
 		)
 	);
 
@@ -120,7 +132,8 @@ class Globals {
 		'lci' => 'author',
 		'vf' => 'author',
 		'vogue' => 'author',
-		'wired' => 'author'
+		'wired' => 'author',
+		'wired2' => 'author'
 	);
 
 	// Generic info

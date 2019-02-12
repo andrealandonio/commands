@@ -134,7 +134,7 @@ class SitesController extends Controller
 	 * - cmd sites show_user_profile_images_path
 	 * - cmd sites show_user_profile_images_size
 	 * - cmd sites search_user vf --key=test
-	 * - cmd sites add_user vf --username=test --name=Name --surname=Surname --alias="Name+Surname" --role=author --type=2 --images=1 --avatar=1 (compact version)
+	 * - cmd sites add_user vf --username=test --name=Name --surname=Surname --role=author --type=2 --images=1 --avatar=1 (compact version)
 	 * - cmd sites add_user vf --username=test --mail=test@mail.it --password=SECRET --name=Name --surname=Surname --alias="Name+Surname" --bio="User+bio" --job="Job+description" --role=author --type=2 --images=1 --avatar=1
 	 * - cmd sites add_user glamour --username=bm --mail=bm@brandmag.glamour.it --name=Bm --alias="Bm" --role=author --type=7 --images=0 --avatar=1
 	 *
