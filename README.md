@@ -70,12 +70,15 @@ region=XXXXX
 
 For now, no database needed
 
-## NOTES
+## Notes
 
 Here below a list of all the commands available from command line:
 
 - `aws`
 allow you to perform actions on a AWS account.
+
+- `sites`
+allow you to perform sites actions (especially work with users).
 
 - `env`
 allow you to perform actions on a LNMP stack (linux, nginx, mysql and php). With this command you can, start, stop, restart and
