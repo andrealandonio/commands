@@ -139,7 +139,7 @@ class SitesController extends Controller
 	 * - cmd sites add_user glamour --username=bm --mail=bm@brandmag.glamour.it --name=Bm --alias="Bm" --role=author --type=7 --images=0 --avatar=1
 	 *
 	 * @param string $action the action to be performed. (values: add_user, search_user, show_user_profile_types, show_user_profile_images_path, show_user_profile_images_size)
-	 * @param string $site the site to be used (values: gq, glamour, lci, vf, vogue, wired)
+	 * @param string $site the site to be used (values: ad, gq, glamour, lci, vf, vogue, wired)
 	 *
 	 * @return int
 	 */

@@ -1,11 +1,9 @@
-<p align="center">
-    <h1 align="center">Yii2 Commands project</h1>
-</p>
+# Yii2 Commands project
 
 Commands project is a simple Yii2 project that allow you to perform console commands and a basic web views to solve easy operations.
 
-DIRECTORY STRUCTURE
--------------------
+## Directory structure
+
 
       assets/             contains assets definition
       commands/           contains console commands (controllers)
@@ -21,14 +19,12 @@ DIRECTORY STRUCTURE
       web/                contains the entry script and Web resources
       widgets/            contains project widgets
 
-REQUIREMENTS
-------------
+## Requirements
 
 The minimum requirement by this project is that your Web server supports PHP 7. 
 For now, this projects is tested only on Ubuntu OS.
 
-USAGE
-------------
+## Usage
 
 First of all, after you have downloaded the repo, you need to retrieve project libraries. Simply run the following command in your project root folder (ps: you need to have "composer" already installed):
 
@@ -57,8 +53,7 @@ Now you should be able to run console commands, using `cmd` alias directly from 
 cmd help
 ~~~
 
-CONFIGURATION
--------------
+## Configuration
 
 ### AWS Credentials
 
@@ -75,8 +70,7 @@ region=XXXXX
 
 For now, no database needed
 
-NOTES
---------
+## NOTES
 
 Here below a list of all the commands available from command line:
 
@@ -94,8 +88,7 @@ stop and check the status of your VPN. It's simply managed by a configuration ".
 - `video`
 allow you to perform actions on videos.
 
-TESTING
--------
+## Testing
 
 Tests are located in `tests` directory. They are developed with [Codeception PHP Testing Framework](http://codeception.com/).
 By default there are 3 test suites:
@@ -113,7 +106,6 @@ vendor/bin/codecept run
 The command above will execute unit and functional tests. Unit tests are testing the system components, while functional
 tests are for testing user interaction. Acceptance tests are disabled by default as they require additional setup since
 they perform testing in real browser. 
-
 
 ### Running  acceptance tests
 
@@ -179,7 +171,7 @@ To execute acceptance tests do the following:
    # run only unit and functional tests
    vendor/bin/codecept run unit,functional
    ```
-
+   
 ### Code coverage support
 
 By default, code coverage is disabled in `codeception.yml` configuration file, you should uncomment needed rows to be able

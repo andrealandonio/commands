@@ -5,6 +5,7 @@ class Globals {
 
 	// Brands
 	const BRANDS = array(
+		'ad',
 		'gq',
 		'glamour',
 		'lci',
@@ -24,6 +25,11 @@ class Globals {
 
 	// User profile types
 	const USER_PROFILE_TYPES = array(
+		'ad' => array(
+			1 => 'subscriber',
+			2 => 'contributor',
+			9 => 'redazione',
+		),
 		'gq' => array(
 			1 => 'subscriber',
 			2 => 'contributor',
@@ -61,6 +67,9 @@ class Globals {
 
 	// User profile images path
 	const USER_PROFILE_IMAGES_PATH = array(
+		'ad' => array(
+			'profile_image' => 'https://adtoday.it/avatar/big/#USERNAME#.jpg'
+		),
 		'gq' => array(
 			'profile_image' => 'https://img.gqitalia.it/avatar/big/#USERNAME#.jpg',
 			'profile_avatar' => 'https://img.gqitalia.it/avatar/small/#USERNAME#.jpg',
@@ -86,6 +95,9 @@ class Globals {
 
 	// User profile images size
 	const USER_PROFILE_IMAGES_SIZE = array(
+		'ad' => array(
+			'profile_image' => '300x300',
+		),
 		'gq' => array(
 			'profile_image' => '200x200',
 			'profile_avatar' => '44x44',
@@ -113,7 +125,8 @@ class Globals {
 	// Default global and brands roles
 	const DEFAULT_GLOBAL_ROLES = 'author';
 	const DEFAULT_BRANDS_ROLES = array(
-		'gq' => 'contributor',
+		'ad' => 'author',
+		'gq' => 'author',
 		'glamour' => 'author',
 		'lci' => 'author',
 		'vf' => 'author',
