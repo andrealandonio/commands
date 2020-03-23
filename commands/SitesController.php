@@ -319,6 +319,7 @@ class SitesController extends Controller
 				if (!empty($user->getBio())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'description\', \'' . addslashes($user->getBio()) . '\')');
 				if (!empty($user->getJob())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_job\', \'' . addslashes($user->getJob()) . '\')');
 				if (!empty($user->getType())) $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'profile_type\', \'' . $user->getType() . '\')');
+        $db->insert('INSERT INTO ' . $table_prefix . 'usermeta (user_id, meta_key, meta_value) VALUES (' . $user_id . ', \'rich_editing\', \'true\')');
 
 				// Retrieve user profile images paths
 				$profile_images_paths = Globals::USER_PROFILE_IMAGES_PATH[$site];
